@@ -10,6 +10,7 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/comp
 import { ProductForm } from "@/components/admin/product-form";
 import { type MediaItem } from "@/components/admin/media-items-editor";
 import { deleteProduct } from "@/lib/actions";
+import { formatPrice } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 import { Plus, Pencil, Trash2, Package, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -34,7 +35,7 @@ interface Product {
 
 interface Category { id: string; name: string }
 
-export function ProductsClient({ products: initialProducts, categories }: { products: Product[]; categories: Category[] }) {
+export function ProductsClient({ products: initialProducts, categories, currency = "USD" }: { products: Product[]; categories: Category[]; currency?: string }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
@@ -97,7 +98,7 @@ export function ProductsClient({ products: initialProducts, categories }: { prod
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 truncate">{product.name}</p>
-                      <p className="text-xs text-gray-500">{product.category?.name || "Uncategorized"} · ${product.price.toFixed(2)}</p>
+                      <p className="text-xs text-gray-500">{product.category?.name || "Uncategorized"} · {formatPrice(product.price, currency)}</p>
                       <div className="flex gap-1.5 mt-1.5">
                         <Badge variant={product.isActive ? "success" : "secondary"}>{product.isActive ? "Active" : "Inactive"}</Badge>
                         {product.isFeatured && <Badge variant="warning">Featured</Badge>}
@@ -140,8 +141,8 @@ export function ProductsClient({ products: initialProducts, categories }: { prod
                       <td className="px-5 py-3 text-sm text-gray-500 hidden md:table-cell">{product.category?.name || "—"}</td>
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-1.5">
-                          <span className="text-sm font-semibold text-gray-900">${product.price.toFixed(2)}</span>
-                          {product.comparePrice && <span className="text-xs line-through text-gray-400">${product.comparePrice.toFixed(2)}</span>}
+                          <span className="text-sm font-semibold text-gray-900">{formatPrice(product.price, currency)}</span>
+                          {product.comparePrice && <span className="text-xs line-through text-gray-400">{formatPrice(product.comparePrice, currency)}</span>}
                         </div>
                       </td>
                       <td className="px-5 py-3 text-sm text-gray-500 hidden lg:table-cell">{product.stock}</td>

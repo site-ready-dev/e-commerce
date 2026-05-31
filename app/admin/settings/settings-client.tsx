@@ -13,11 +13,37 @@ import { toast } from "@/components/ui/use-toast";
 import { MediaUploader } from "@/components/admin/media-uploader";
 import { Store, Link2, Search, MessageCircle } from "lucide-react";
 
+const CURRENCIES = [
+  { code: "USD", label: "USD – US Dollar" },
+  { code: "EUR", label: "EUR – Euro" },
+  { code: "GBP", label: "GBP – British Pound" },
+  { code: "CAD", label: "CAD – Canadian Dollar" },
+  { code: "AUD", label: "AUD – Australian Dollar" },
+  { code: "INR", label: "INR – Indian Rupee" },
+  { code: "PKR", label: "PKR – Pakistani Rupee" },
+  { code: "AED", label: "AED – UAE Dirham" },
+  { code: "SAR", label: "SAR – Saudi Riyal" },
+  { code: "MYR", label: "MYR – Malaysian Ringgit" },
+  { code: "SGD", label: "SGD – Singapore Dollar" },
+  { code: "BDT", label: "BDT – Bangladeshi Taka" },
+  { code: "LKR", label: "LKR – Sri Lankan Rupee" },
+  { code: "NGN", label: "NGN – Nigerian Naira" },
+  { code: "KES", label: "KES – Kenyan Shilling" },
+  { code: "ZAR", label: "ZAR – South African Rand" },
+  { code: "EGP", label: "EGP – Egyptian Pound" },
+  { code: "TRY", label: "TRY – Turkish Lira" },
+  { code: "BRL", label: "BRL – Brazilian Real" },
+  { code: "MXN", label: "MXN – Mexican Peso" },
+  { code: "JPY", label: "JPY – Japanese Yen" },
+  { code: "CNY", label: "CNY – Chinese Yuan" },
+];
+
 interface Settings {
   id: string;
   orgName: string;
   storeName: string;
   tagline: string;
+  currency: string;
   logoUrl: string | null;
   faviconUrl: string | null;
   whatsappNumber: string | null;
@@ -48,6 +74,7 @@ export function SettingsClient({ settings }: { settings: Settings | null }) {
       orgName: formData.get("orgName") as string,
       storeName: formData.get("storeName") as string,
       tagline: formData.get("tagline") as string,
+      currency: formData.get("currency") as string || "USD",
       logoUrl: logoUrl || undefined,
       faviconUrl: faviconUrl || undefined,
       whatsappNumber: formData.get("whatsappNumber") as string || undefined,
@@ -107,6 +134,20 @@ export function SettingsClient({ settings }: { settings: Settings | null }) {
             <div className="space-y-1.5">
               <Label htmlFor="tagline">Tagline</Label>
               <Input id="tagline" name="tagline" defaultValue={s?.tagline || ""} placeholder="Quality products at great prices" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="currency">Currency</Label>
+              <select
+                id="currency"
+                name="currency"
+                defaultValue={s?.currency || "USD"}
+                className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.label}</option>
+                ))}
+              </select>
+              <p className="text-xs text-gray-400">Applied to all price displays across the store and admin</p>
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">

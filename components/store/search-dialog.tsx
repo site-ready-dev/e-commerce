@@ -17,7 +17,7 @@ import { formatPrice } from "@/lib/utils";
 
 type Product = Awaited<ReturnType<typeof getProducts>>[number];
 
-export function SearchDialog() {
+export function SearchDialog({ currency = "USD" }: { currency?: string }) {
   const [open, setOpen] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const router = useRouter();
@@ -92,7 +92,7 @@ export function SearchDialog() {
                       <p className="text-xs text-gray-400">{product.category.name}</p>
                     )}
                   </div>
-                  <CommandShortcut>{formatPrice(product.price)}</CommandShortcut>
+                  <CommandShortcut>{formatPrice(product.price, currency)}</CommandShortcut>
                 </CommandItem>
               );
             })}

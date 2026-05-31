@@ -32,9 +32,10 @@ interface CategoryFilterProps {
   products: Product[];
   categories: Category[];
   whatsappNumber: string | null;
+  currency?: string;
 }
 
-export function CategoryFilter({ products, categories, whatsappNumber }: CategoryFilterProps) {
+export function CategoryFilter({ products, categories, whatsappNumber, currency = "USD" }: CategoryFilterProps) {
   const [selected, setSelected] = useState<string | null>(null);
   const activeCategories = categories.filter((c) => c.isActive);
 
@@ -67,7 +68,7 @@ export function CategoryFilter({ products, categories, whatsappNumber }: Categor
               </button>
             </div>
           ) : (
-            <ProductGrid products={catProducts} whatsappNumber={whatsappNumber} />
+            <ProductGrid products={catProducts} whatsappNumber={whatsappNumber} currency={currency} />
           )}
         </section>
       </>
@@ -91,13 +92,13 @@ export function CategoryFilter({ products, categories, whatsappNumber }: Categor
                 <h2 className="text-lg font-semibold text-gray-900">{cat.name}</h2>
                 <span className="text-xs text-gray-400">{catProducts.length} items</span>
               </div>
-              <ProductGrid products={catProducts} whatsappNumber={whatsappNumber} />
+              <ProductGrid products={catProducts} whatsappNumber={whatsappNumber} currency={currency} />
             </section>
           );
         })
       ) : (
         <section>
-          <ProductGrid products={products} whatsappNumber={whatsappNumber} />
+          <ProductGrid products={products} whatsappNumber={whatsappNumber} currency={currency} />
         </section>
       )}
     </>

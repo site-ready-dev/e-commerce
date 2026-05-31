@@ -61,6 +61,7 @@ export default async function HomePage() {
             products={products}
             categories={categories}
             whatsappNumber={settings?.whatsappNumber ?? null}
+            currency={settings?.currency ?? "USD"}
           />
         )}
       </div>

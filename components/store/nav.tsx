@@ -5,6 +5,7 @@ import { SearchDialog } from "./search-dialog";
 interface NavSettings {
   storeName: string;
   logoUrl: string | null;
+  currency: string;
 }
 
 export function StoreNav({ settings }: { settings: NavSettings | null }) {
@@ -25,7 +26,7 @@ export function StoreNav({ settings }: { settings: NavSettings | null }) {
           <span className="text-sm font-semibold text-gray-900">{storeName}</span>
         </Link>
         <div className="flex items-center gap-1">
-          <SearchDialog />
+          <SearchDialog currency={settings?.currency || "USD"} />
           <Link href="/" className="rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-colors">Home</Link>
         </div>
       </div>

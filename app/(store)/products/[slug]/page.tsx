@@ -36,7 +36,7 @@ export async function generateMetadata({
       },
       other: {
         "product:price:amount": product.price.toString(),
-        "product:price:currency": "USD",
+        "product:price:currency": settings.currency || "USD",
       },
     };
   } catch {
@@ -52,6 +52,7 @@ export default async function ProductPage({
   const { slug } = await params;
   let product: Awaited<ReturnType<typeof getProductBySlug>> = null;
   let whatsappNumber: string | null = null;
+  let currency = "USD";
 
   try {
     const [p, settings] = await Promise.all([
@@ -60,6 +61,7 @@ export default async function ProductPage({
     ]);
     product = p;
     whatsappNumber = settings.whatsappNumber || null;
+    currency = settings.currency || "USD";
   } catch {}
 
   if (!product || !product.isActive) notFound();
@@ -80,7 +82,7 @@ export default async function ProductPage({
     offers: {
       "@type": "Offer",
       price: product.price,
-      priceCurrency: "USD",
+      priceCurrency: currency,
       availability:
         product.stock > 0
           ? "https://schema.org/InStock"
@@ -126,12 +128,12 @@ export default async function ProductPage({
 
             <div className="mt-4 flex items-baseline gap-3">
               <span className="text-3xl font-bold text-gray-900">
-                {formatPrice(product.price)}
+                {formatPrice(product.price, currency)}
               </span>
               {product.comparePrice && (
                 <>
                   <span className="text-lg line-through text-gray-400">
-                    {formatPrice(product.comparePrice)}
+                    {formatPrice(product.comparePrice, currency)}
                   </span>
                   {discount && (
                     <span className="rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-semibold text-green-800">
@@ -152,7 +154,15 @@ export default async function ProductPage({
             )}
 
             <div className="mt-8 flex flex-col gap-3">
-              {whatsappNumber ? (
+              {product.stock === 0 ? (
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-6 py-3.5 text-sm font-semibold text-gray-500 cursor-not-allowed"
+                >
+                  <Package className="h-5 w-5" />
+                  Sold Out
+                </button>
+              ) : whatsappNumber ? (
                 <a
                   href={buildWhatsAppUrl(whatsappNumber, product.name)}
                   target="_blank"

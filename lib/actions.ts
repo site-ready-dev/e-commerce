@@ -18,6 +18,7 @@ export async function updateStoreSettings(data: {
   orgName?: string;
   storeName?: string;
   tagline?: string;
+  currency?: string;
   logoUrl?: string;
   faviconUrl?: string;
   whatsappNumber?: string;

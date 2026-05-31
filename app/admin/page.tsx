@@ -1,4 +1,5 @@
 import { getProducts, getCategories, getBanners, getStoreSettings } from "@/lib/actions";
+import { formatPrice } from "@/lib/utils";
 import { Package, Tag, ImageIcon, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
@@ -7,6 +8,7 @@ export default async function AdminDashboard() {
   let categories: Awaited<ReturnType<typeof getCategories>> = [];
   let banners: Awaited<ReturnType<typeof getBanners>> = [];
   let storeName = "My Store";
+  let currency = "USD";
 
   try {
     [products, categories, banners] = await Promise.all([
@@ -16,6 +18,7 @@ export default async function AdminDashboard() {
     ]);
     const settings = await getStoreSettings();
     storeName = settings.storeName;
+    currency = settings.currency;
   } catch {}
 
   const stats = [
@@ -76,7 +79,7 @@ export default async function AdminDashboard() {
                   <p className="truncate text-sm font-medium text-gray-900">{product.name}</p>
                   <p className="text-xs text-gray-500">{product.category?.name || "Uncategorized"}</p>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">${product.price.toFixed(2)}</span>
+                <span className="text-sm font-semibold text-gray-900">{formatPrice(product.price, currency)}</span>
               </div>
             ))}
             {products.length === 0 && (

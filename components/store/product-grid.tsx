@@ -21,9 +21,10 @@ interface Product {
 interface ProductGridProps {
   products: Product[];
   whatsappNumber: string | null;
+  currency?: string;
 }
 
-export function ProductGrid({ products, whatsappNumber }: ProductGridProps) {
+export function ProductGrid({ products, whatsappNumber, currency = "USD" }: ProductGridProps) {
   if (products.length === 0) return null;
 
   return (
@@ -57,10 +58,10 @@ export function ProductGrid({ products, whatsappNumber }: ProductGridProps) {
               </h3>
             </Link>
             <div className="mt-1.5 flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-900">{formatPrice(product.price)}</span>
+              <span className="text-sm font-bold text-gray-900">{formatPrice(product.price, currency)}</span>
               {product.comparePrice && (
                 <span className="text-xs line-through text-gray-400">
-                  {formatPrice(product.comparePrice)}
+                  {formatPrice(product.comparePrice, currency)}
                 </span>
               )}
             </div>
