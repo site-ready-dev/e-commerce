@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
   DndContext,
@@ -27,7 +27,7 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
-import { createCategory, updateCategory, deleteCategory, reorderCategories } from "@/lib/actions";
+import { createCategory, updateCategory, deleteCategory, reorderCategories, getCategories } from "@/lib/actions";
 import { toast } from "@/components/ui/use-toast";
 import { MediaUploader } from "@/components/admin/media-uploader";
 import { Plus, Pencil, Trash2, Tag, GripVertical } from "lucide-react";
@@ -45,7 +45,7 @@ interface Category {
 
 // ─── Category Form ────────────────────────────────────────────────────────────
 
-function CategoryForm({ category, onSuccess }: { category?: Category; onSuccess: () => void }) {
+function CategoryForm({ category, onSuccess }: { category?: Category; onSuccess: () => void | Promise<void> }) {
   const [isPending, startTransition] = useTransition();
   const [isActive, setIsActive] = useState(category?.isActive ?? true);
   const [imageUrl, setImageUrl] = useState(category?.imageUrl || "");
@@ -99,7 +99,7 @@ function SortableTableRow({ cat, editCategory, setEditCategory, onDelete, onSucc
   cat: Category; editCategory: Category | null;
   setEditCategory: (c: Category | null) => void;
   onDelete: (id: string, name: string) => void;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id });
 
@@ -154,7 +154,7 @@ function SortableMobileCard({ cat, editCategory, setEditCategory, onDelete, onSu
   cat: Category; editCategory: Category | null;
   setEditCategory: (c: Category | null) => void;
   onDelete: (id: string, name: string) => void;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id });
 
@@ -201,6 +201,16 @@ export function CategoriesClient({ categories: initialCategories }: { categories
   const [openCreate, setOpenCreate] = useState(false);
   const [editCategory, setEditCategory] = useState<Category | null>(null);
 
+  useEffect(() => { setCategories(initialCategories); }, [initialCategories]);
+
+  const syncCategories = async () => {
+    try {
+      const fresh = await getCategories();
+      setCategories(fresh as unknown as Category[]);
+    } catch {}
+    router.refresh();
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } })
@@ -246,7 +256,7 @@ export function CategoriesClient({ categories: initialCategories }: { categories
             </DialogTrigger>
             <DialogContent>
               <DialogHeader><DialogTitle>New Category</DialogTitle></DialogHeader>
-              <CategoryForm onSuccess={() => { setOpenCreate(false); router.refresh(); }} />
+              <CategoryForm onSuccess={() => { setOpenCreate(false); syncCategories(); }} />
             </DialogContent>
           </Dialog>
         </div>
@@ -269,7 +279,7 @@ export function CategoriesClient({ categories: initialCategories }: { categories
                     editCategory={editCategory}
                     setEditCategory={setEditCategory}
                     onDelete={handleDelete}
-                    onSuccess={() => router.refresh()}
+                    onSuccess={syncCategories}
                   />
                 ))}
               </div>
@@ -295,7 +305,7 @@ export function CategoriesClient({ categories: initialCategories }: { categories
                         editCategory={editCategory}
                         setEditCategory={setEditCategory}
                         onDelete={handleDelete}
-                        onSuccess={() => router.refresh()}
+                        onSuccess={syncCategories}
                       />
                     ))}
                   </tbody>
@@ -316,7 +326,7 @@ function CategoryActions({ cat, editCategory, setEditCategory, onDelete, onSucce
   cat: Category; editCategory: Category | null;
   setEditCategory: (c: Category | null) => void;
   onDelete: (id: string, name: string) => void;
-  onSuccess: () => void;
+  onSuccess: () => void | Promise<void>;
 }) {
   return (
     <>

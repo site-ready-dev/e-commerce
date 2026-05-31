@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { ProductForm } from "@/components/admin/product-form";
 import { type MediaItem } from "@/components/admin/media-items-editor";
-import { deleteProduct } from "@/lib/actions";
+import { deleteProduct, getProducts } from "@/lib/actions";
 import { formatPrice } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 import { Plus, Pencil, Trash2, Package, Search } from "lucide-react";
@@ -40,8 +40,21 @@ export function ProductsClient({ products: initialProducts, categories, currency
   const [search, setSearch] = useState("");
   const [openCreate, setOpenCreate] = useState(false);
   const [editProduct, setEditProduct] = useState<Product | null>(null);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
 
-  const filtered = initialProducts.filter(
+  // Keep local state in sync when server re-renders (e.g. navigating back)
+  useEffect(() => { setProducts(initialProducts); }, [initialProducts]);
+
+  // Refetch products immediately so the edit dialog always gets fresh data
+  const syncProducts = async () => {
+    try {
+      const fresh = await getProducts();
+      setProducts(fresh as unknown as Product[]);
+    } catch {}
+    router.refresh();
+  };
+
+  const filtered = products.filter(
     (p) =>
       p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.category?.name.toLowerCase().includes(search.toLowerCase())
@@ -50,6 +63,7 @@ export function ProductsClient({ products: initialProducts, categories, currency
   const handleDelete = async (id: string) => {
     try {
       await deleteProduct(id);
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       toast({ title: "Product deleted" });
       router.refresh();
     } catch {
@@ -63,7 +77,7 @@ export function ProductsClient({ products: initialProducts, categories, currency
         <div className="mb-6 flex items-center justify-between gap-3">
           <div>
             <h1 className="text-xl font-semibold text-gray-900">Products</h1>
-            <p className="mt-0.5 text-sm text-gray-500">{initialProducts.length} total</p>
+            <p className="mt-0.5 text-sm text-gray-500">{products.length} total</p>
           </div>
           <Dialog open={openCreate} onOpenChange={setOpenCreate}>
             <DialogTrigger asChild>
@@ -71,7 +85,7 @@ export function ProductsClient({ products: initialProducts, categories, currency
             </DialogTrigger>
             <DialogContent className="sm:max-w-2xl">
               <DialogHeader><DialogTitle>New Product</DialogTitle></DialogHeader>
-              <ProductForm categories={categories} onSuccess={() => { setOpenCreate(false); router.refresh(); }} />
+              <ProductForm categories={categories} onSuccess={() => { setOpenCreate(false); syncProducts(); }} />
             </DialogContent>
           </Dialog>
         </div>
@@ -105,7 +119,7 @@ export function ProductsClient({ products: initialProducts, categories, currency
                       </div>
                     </div>
                     <div className="flex items-center gap-0.5">
-                      <ProductActions product={product} categories={categories} editProduct={editProduct} setEditProduct={setEditProduct} onDelete={handleDelete} onSuccess={() => router.refresh()} />
+                      <ProductActions product={product} categories={categories} editProduct={editProduct} setEditProduct={setEditProduct} onDelete={handleDelete} onSuccess={syncProducts} />
                     </div>
                   </div>
                 </div>
@@ -154,7 +168,7 @@ export function ProductsClient({ products: initialProducts, categories, currency
                       </td>
                       <td className="px-5 py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <ProductActions product={product} categories={categories} editProduct={editProduct} setEditProduct={setEditProduct} onDelete={handleDelete} onSuccess={() => router.refresh()} />
+                          <ProductActions product={product} categories={categories} editProduct={editProduct} setEditProduct={setEditProduct} onDelete={handleDelete} onSuccess={syncProducts} />
                         </div>
                       </td>
                     </tr>
@@ -171,7 +185,7 @@ export function ProductsClient({ products: initialProducts, categories, currency
 
 function ProductActions({ product, categories, editProduct, setEditProduct, onDelete, onSuccess }: {
   product: Product; categories: Category[]; editProduct: Product | null;
-  setEditProduct: (p: Product | null) => void; onDelete: (id: string) => void; onSuccess: () => void;
+  setEditProduct: (p: Product | null) => void; onDelete: (id: string) => void; onSuccess: () => void | Promise<void>;
 }) {
   return (
     <>
