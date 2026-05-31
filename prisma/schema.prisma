@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model StoreSettings {
+  id              String   @id @default(cuid())
+  orgName         String   @default("")
+  storeName       String   @default("My Store")
+  tagline         String   @default("")
+  logoUrl         String?
+  faviconUrl      String?
+  whatsappNumber  String?
+  email           String?
+  phone           String?
+  address         String?
+  instagramUrl    String?
+  facebookUrl     String?
+  twitterUrl      String?
+  youtubeUrl      String?
+  tiktokUrl       String?
+  metaTitle       String?
+  metaDescription String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  isActive    Boolean   @default(true)
+  order       Int       @default(0)
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  price        Float
+  comparePrice Float?
+  mediaItems   Json     @default("[]")
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id])
+  isActive     Boolean   @default(true)
+  isFeatured   Boolean   @default(false)
+  stock        Int       @default(0)
+  sku          String?
+  metaTitle       String?
+  metaDescription String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Banner {
+  id           String   @id @default(cuid())
+  title        String?
+  subtitle     String?
+  mediaUrl     String
+  mediaType    String   @default("image")
+  isFullScreen Boolean  @default(true)
+  isActive     Boolean  @default(true)
+  ctaText      String?
+  ctaUrl       String?
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MediaFile {
+  id        String   @id @default(cuid())
+  filename  String
+  url       String
+  size      Int
+  mimeType  String
+  type      String
+  createdAt DateTime @default(now())
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model OtpCode {
+  id        String   @id @default(cuid())
+  email     String
+  codeHash  String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
