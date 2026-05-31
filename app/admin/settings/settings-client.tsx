@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { updateStoreSettings } from "@/lib/actions";
 import { toast } from "@/components/ui/use-toast";
-import { MediaUploader } from "@/components/admin/media-uploader";
+import { MediaUploader, LogoUploader } from "@/components/admin/media-uploader";
 import { Store, Link2, Search, MessageCircle } from "lucide-react";
 
 const CURRENCIES = [
@@ -152,7 +152,7 @@ export function SettingsClient({ settings }: { settings: Settings | null }) {
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>Logo</Label>
-                <MediaUploader value={logoUrl} onChange={setLogoUrl} accept="image" />
+                <LogoUploader value={logoUrl} onChange={setLogoUrl} />
               </div>
               <div className="space-y-1.5">
                 <Label>Favicon</Label>
