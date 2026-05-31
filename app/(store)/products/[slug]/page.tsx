@@ -152,7 +152,15 @@ export default async function ProductPage({
             )}
 
             <div className="mt-8 flex flex-col gap-3">
-              {whatsappNumber ? (
+              {product.stock === 0 ? (
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 rounded-xl bg-gray-200 px-6 py-3.5 text-sm font-semibold text-gray-500 cursor-not-allowed"
+                >
+                  <Package className="h-5 w-5" />
+                  Sold Out
+                </button>
+              ) : whatsappNumber ? (
                 <a
                   href={buildWhatsAppUrl(whatsappNumber, product.name)}
                   target="_blank"
