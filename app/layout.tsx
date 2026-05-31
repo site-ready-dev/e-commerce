@@ -25,8 +25,8 @@ export async function generateMetadata(): Promise<Metadata> {
     };
   } catch {
     return {
-      title: "Online Store",
-      description: "Shop our collection",
+      title: "SiteReady Ecommerce",
+      description: "Fastest way to launch your business through WhatsApp",
     };
   }
 }
